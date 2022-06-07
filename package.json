@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "npm run start",
-    "dev": "npm run dev",
+    "dev": "nodemon app.js",
     "lint": "npx eslint .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -14,7 +14,7 @@
     "url": "git+https://github.com/AstreyaJulia/express-mesto-gha.git"
   },
   "keywords": [],
-  "author": "",
+  "author": "Julia Latysheva",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/AstreyaJulia/express-mesto-gha/issues"
