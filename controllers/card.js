@@ -7,8 +7,10 @@ const Card = require('../models/card');
  */
 const cardResponseHandler = (card, res) => {
   card
-    ? res.status(200).send({ data: card }) // ID карточки есть в БД, статус 200, отправить карточку
-    : res.status(404).send({ message: 'Карточка с переданным ID не найдена' }); // ID карточки нет в БД, статус 404
+    // ID карточки есть в БД, статус 200, отправить карточку
+    ? res.status(200).send({ data: card })
+    // ID карточки нет в БД, статус 404
+    : res.status(404).send({ message: 'Карточка с переданным ID не найдена' });
 };
 
 /** Получить все карточки

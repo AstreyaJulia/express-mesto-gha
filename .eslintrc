@@ -9,6 +9,18 @@
         ]
       }
     ],
-    "linebreak-style": 0
+    "linebreak-style": 0,
+    "max-len": [
+      "error",
+      {
+        "code": 150
+      }
+    ],
+    "no-unused-expressions": [
+      "error",
+      {
+        "allowTernary": true
+      }
+    ]
   }
 }
