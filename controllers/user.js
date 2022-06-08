@@ -6,7 +6,9 @@ const User = require('../models/user');
  * @param res - ответ сервера
  */
 const userResponseHandler = (user, res) => {
-  !user
+  console.log(user)
+  console.log(res)
+  user
     ? res.status(200).send({ data: user }) // ID пользователя есть в БД, статус 200, отправить пользователя
     : res.status(404).send({ message: 'Пользователь с переданным ID не найден' }); // ID пользователя нет в БД, статус 404
 };
@@ -52,7 +54,8 @@ const getCurrentUser = (req, res) => {
  * @param res - ответ
  */
 const getUserById = (req, res) => {
-  User.findById(req.params.userId)
+  const { userId } = req.params;
+  User.findById(userId)
     .then((user) => userResponseHandler(user, res))
     .catch((err) => serverErrorHandler(err, res));
 };

@@ -6,7 +6,7 @@ const Card = require('../models/card');
  * @param res - ответ сервера
  */
 const cardResponseHandler = (card, res) => {
-  !card
+  card
     ? res.status(200).send({ data: card }) // ID карточки есть в БД, статус 200, отправить карточку
     : res.status(404).send({ message: 'Карточка с переданным ID не найдена' }); // ID карточки нет в БД, статус 404
 };
