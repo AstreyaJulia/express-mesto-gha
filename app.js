@@ -7,6 +7,7 @@ const app = express();
 
 const usersRoute = require('./routes/users');
 const cardsRoute = require('./routes/cards');
+const { responseHelper } = require('./utils/responseHelper');
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -21,11 +22,13 @@ app.use((req, res, next) => {
   next();
 });
 
+/** Роутинг */
 app.use(usersRoute);
 app.use(cardsRoute);
 
+/** Любые маршруты, не подходящие под имеющиеся роуты, вызовут статус 404 */
 app.all('*', (req, res) => {
-  res.status(404).send({ message: 'Запрашиваемый ресурс не найден' });
+  responseHelper(null, { status: 404 }, res);
 });
 
 app.listen(PORT);
