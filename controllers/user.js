@@ -10,7 +10,7 @@ const getUsers = (req, res) => User.find({})
   // статус 200, отправляем пользователей
   .then((users) => responseHelper({ data: users }, null, res))
   // ошибка сервера, статус 500
-  .catch(() => responseHelper(null, { status: 500 }, res));
+  .catch(() => responseHelper(null, { statusCode: 500 }, res));
 
 /** Получить информацию о пользователе
  * @param req - запрос, /users/me, метод GET
@@ -23,11 +23,11 @@ const getUserInfo = (req, res) => {
   if (mongoose.Types.ObjectId.isValid(userId)) {
     User.findById(_id)
       .then((user) => responseHelper({ data: user }, null, res))
-      .catch(() => {
-        responseHelper(null, { status: 500 }, res);
+      .catch((err) => {
+        responseHelper(null, err, res);
       });
   } else {
-    responseHelper(null, { status: 400 }, res);
+    responseHelper(null, { statusCode: 400 }, res);
   }
 };
 
@@ -39,7 +39,10 @@ const getUserById = (req, res) => {
   const { userId } = req.params;
 
   User.findById(userId)
-    .then((user) => responseHelper({ data: user }, null, res))
+    .orFail((err) => {
+      responseHelper(null, err, res);
+    })
+    .then((user) => { if (user) { responseHelper({ data: user }, null, res); } })
     .catch((err) => responseHelper(null, err, res));
 };
 
@@ -66,7 +69,10 @@ const updateProfile = (req, res) => {
   const { _id } = req.user;
 
   User.findByIdAndUpdate(_id, { name, about }, { new: true, runValidators: true })
-    .then((user) => responseHelper({ data: user }, null, res))
+    .orFail((err) => {
+      responseHelper(null, err, res);
+    })
+    .then((user) => { if (user) { responseHelper({ data: user }, null, res); } })
     .catch((err) => responseHelper(null, err, res));
 };
 
@@ -81,7 +87,10 @@ const updateAvatar = (req, res) => {
   const { _id } = req.user;
 
   User.findByIdAndUpdate(_id, { avatar }, { new: true, runValidators: true })
-    .then((user) => responseHelper({ data: user }, null, res))
+    .orFail((err) => {
+      responseHelper(null, err, res);
+    })
+    .then((user) => { if (user) { responseHelper({ data: user }, null, res); } })
     .catch((err) => responseHelper(null, err, res));
 };
 

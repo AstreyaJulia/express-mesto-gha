@@ -1,16 +1,16 @@
 /** Обработчик ответа
- * @param data - данные, или null
+ * @param dataObject
  * @param error - ошибка от сервера, либо {status: номер статуса}, либо null, если нет ошибки
  * @param response - ответ
  */
-const responseHelper = (data, error, response) => {
+const responseHelper = (dataObject, error, response) => {
   /** Объект для ошибок
    * @type Object
    */
   const ERRORS = {
-    400: { status: 400, text: 'Переданы некоректные данные' },
-    404: { status: 404, text: 'Запрашиваемый ресурс не найден' },
-    500: { status: 500, text: 'Ошибка сервера' },
+    400: 'Переданы некоректные данные',
+    404: 'Запрашиваемый ресурс не найден',
+    500: 'Ошибка сервера',
   };
 
   // Если получили ошибку
@@ -23,14 +23,19 @@ const responseHelper = (data, error, response) => {
       errorStatus = 400;
     }
 
+    if (error.name === 'DocumentNotFoundError') {
+      errorStatus = 404;
+    }
+
     // Ошибки, передаваемые статусом
-    if (error.status) {
-      errorStatus = error.status;
+    if (error.statusCode) {
+      errorStatus = error.statusCode;
     }
 
     // Отправляем ошибку
-    response.status(errorStatus).send({ message: ERRORS[errorStatus].text });
-  } else if (data && !error) {
+    response.status(errorStatus).send({ message: ERRORS[errorStatus] });
+  } else if (dataObject && !error) {
+    const { ...data } = dataObject;
     // Ошибок нет, отправляем данные
     response.status(200).send({ ...data });
   }
