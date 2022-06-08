@@ -13,7 +13,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 /** Коннект к MongoDB */
-mongoose.connect('mongodb://localhost:27017/mestodb'); // Mongoose 6 не нужны параметры
+mongoose.connect('mongodb://localhost:27017/mestodb');
 
 app.use((req, res, next) => {
   req.user = {
