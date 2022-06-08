@@ -9,7 +9,7 @@ const cardResponseHandler = (card, res) => {
   !card
     ? res.status(200).send({ data: card }) // ID карточки есть в БД, статус 200, отправить карточку
     : res.status(404).send({ message: 'Карточка с переданным ID не найдена' }); // ID карточки нет в БД, статус 404
-}
+};
 
 /** Получить все карточки
  * @param req - запрос, /cards, метод GET
@@ -60,7 +60,8 @@ const deleteCard = (req, res) => {
  */
 const setCardLike = (req, res) => {
   if (mongoose.Types.ObjectId.isValid(req.params.cardId)) {
-    Card.findByIdAndUpdate(req.params.cardId, { $addToSet: { likes: req.user._id } }, { new: true }) // добавить _id пользователя в массив лайков, если его там нет
+    // добавить _id пользователя в массив лайков, если его там нет
+    Card.findByIdAndUpdate(req.params.cardId, { $addToSet: { likes: req.user._id } }, { new: true })
       .then((card) => cardResponseHandler(card, res))
       .catch((err) => res.status(500).send({ message: `Возникла ошибка ${err.message}` }));
   } else {

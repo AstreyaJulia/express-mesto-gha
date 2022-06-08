@@ -9,7 +9,7 @@ const userResponseHandler = (user, res) => {
   !user
     ? res.status(200).send({ data: user }) // ID пользователя есть в БД, статус 200, отправить пользователя
     : res.status(404).send({ message: 'Пользователь с переданным ID не найден' }); // ID пользователя нет в БД, статус 404
-}
+};
 
 /** Хандлер проверки ошибки сервера
  * @param err - ошибка, возвращенная сревером
@@ -19,7 +19,7 @@ const serverErrorHandler = (err, res) => {
   err.name === 'CastError' || err.name === 'ValidationError'
     ? res.status(400).send({ message: `Возникла ошибка ${err.message}` })
     : res.status(500).send({ message: `Возникла ошибка ${err.message}` });
-}
+};
 
 /** Получить всех пользователей
  * @param req - запрос, /users, метод GET
