@@ -1,7 +1,9 @@
 {
   "extends": "airbnb-base",
   "rules": {
-    "no-underscore-dangle": [ "error", { "allow": ["_id"] }],
+    "no-underscore-dangle": [ "error", { "allow": ["_id"] }], // игнорирует подчеркивание у _id
+    "max-len": ["error", { "code": 150 }], // устанавилвает макс длину строки с 100 до 150 (из-за комментариев)
+    "no-unused-expressions": ["error", { "allowTernary": true }], // не ругается на тернарные выражения
     "linebreak-style": 0,
     "no-console": "off",
     "consistent-return": "off"
