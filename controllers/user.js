@@ -7,8 +7,10 @@ const { responseHelper } = require('../utils/responseHelper');
  * @param res - ответ
  */
 const getUsers = (req, res) => User.find({})
-  .then((users) => responseHelper(users, null, res)) // статус 200, отправляем пользователей
-  .catch(() => responseHelper(null, { status: 500 }, res)); // ошибка сервера, статус 500
+  // статус 200, отправляем пользователей
+  .then((users) => responseHelper({ data: users }, null, res))
+  // ошибка сервера, статус 500
+  .catch(() => responseHelper(null, { status: 500 }, res));
 
 /** Получить информацию о пользователе
  * @param req - запрос, /users/me, метод GET
@@ -20,7 +22,7 @@ const getUserInfo = (req, res) => {
 
   if (mongoose.Types.ObjectId.isValid(userId)) {
     User.findById(_id)
-      .then((user) => responseHelper(user, null, res))
+      .then((user) => responseHelper({ data: user }, null, res))
       .catch(() => {
         responseHelper(null, { status: 500 }, res);
       });
@@ -37,7 +39,7 @@ const getUserById = (req, res) => {
   const { userId } = req.params;
 
   User.findById(userId)
-    .then((user) => responseHelper(user, null, res))
+    .then((user) => responseHelper({ data: user }, null, res))
     .catch((err) => responseHelper(null, err, res));
 };
 
@@ -49,7 +51,7 @@ const createUser = (req, res) => {
   const { name, about, avatar } = req.body;
 
   User.create({ name, about, avatar })
-    .then((user) => responseHelper(user, null, res))
+    .then((user) => responseHelper({ data: user }, null, res))
     .catch((err) => responseHelper(null, err, res));
 };
 
@@ -64,7 +66,7 @@ const updateProfile = (req, res) => {
   const { _id } = req.user;
 
   User.findByIdAndUpdate(_id, { name, about }, { new: true, runValidators: true })
-    .then((user) => responseHelper(user, null, res))
+    .then((user) => responseHelper({ data: user }, null, res))
     .catch((err) => responseHelper(null, err, res));
 };
 
@@ -79,7 +81,7 @@ const updateAvatar = (req, res) => {
   const { _id } = req.user;
 
   User.findByIdAndUpdate(_id, { avatar }, { new: true, runValidators: true })
-    .then((user) => responseHelper(user, null, res))
+    .then((user) => responseHelper({ data: user }, null, res))
     .catch((err) => responseHelper(null, err, res));
 };
 

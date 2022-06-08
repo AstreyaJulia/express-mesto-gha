@@ -8,8 +8,10 @@ const { responseHelper } = require('../utils/responseHelper');
  * @returns {*|Promise<any>}
  */
 const getCards = (req, res) => Card.find({})
-  .then((cards) => responseHelper(cards, null, res)) // статус 200, отправляем карточки
-  .catch(() => responseHelper(null, { status: 500 }, res)); // ошибка сервера, статус 500
+  // статус 200, отправляем карточки
+  .then((cards) => responseHelper({ data: cards }, null, res))
+  // ошибка сервера, статус 500
+  .catch(() => responseHelper(null, { status: 500 }, res));
 
 /** Создает карточку
  * @param req - запрос, /cards,
@@ -23,7 +25,7 @@ const createCard = (req, res) => {
   const { _id } = req.user;
 
   return Card.create({ name, link, owner: _id })
-    .then((card) => responseHelper(card, null, res))
+    .then((card) => responseHelper({ data: card }, null, res))
     .catch((err) => {
       responseHelper(null, err, res);
     });
@@ -39,7 +41,7 @@ const deleteCard = (req, res) => {
 
   if (mongoose.Types.ObjectId.isValid(cardId)) { // валидация передаваемого ID карточки
     Card.findByIdAndRemove(cardId)
-      .then((card) => responseHelper(card, null, res))
+      .then((card) => responseHelper({ data: card }, null, res))
       .catch((err) => responseHelper(null, err, res)); // ошибка сервера, статус 500
   } else {
     responseHelper(null, { status: 400 }, res);
@@ -59,7 +61,7 @@ const setCardLike = (req, res) => {
   if (mongoose.Types.ObjectId.isValid(cardId)) {
     // добавить _id пользователя в массив лайков, если его там нет
     Card.findByIdAndUpdate(cardId, { $addToSet: { likes: _id } }, { new: true })
-      .then((card) => responseHelper(card, null, res))
+      .then((card) => responseHelper({ data: card }, null, res))
       .catch(() => responseHelper(null, { status: 500 }, res));
   } else {
     responseHelper(null, { status: 400 }, res);
@@ -79,7 +81,7 @@ const deleteCardLike = (req, res) => {
   if (mongoose.Types.ObjectId.isValid(cardId)) {
     // Удалить ID пользователя из массива лайков
     Card.findByIdAndUpdate(cardId, { $pull: { likes: _id } }, { new: true })
-      .then((card) => responseHelper(card, null, res))
+      .then((card) => responseHelper({ data: card }, null, res))
       .catch(() => responseHelper(null, { status: 500 }, res));
   } else {
     responseHelper(null, { status: 400 }, res);
