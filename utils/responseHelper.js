@@ -32,7 +32,7 @@ const responseHelper = (data, error, response) => {
     response.status(errorStatus).send({ message: ERRORS[errorStatus].text });
   } else if (data && !error) {
     // Ошибок нет, отправляем данные
-    response.status(200).send({ ...data });
+    response.status(200).send({ data: data });
   }
 };
 
