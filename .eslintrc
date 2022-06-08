@@ -9,20 +9,6 @@
         ]
       }
     ],
-    "max-len": [
-      "error",
-      {
-        "code": 150
-      }
-    ],
-    "no-unused-expressions": [
-      "error",
-      {
-        "allowTernary": true
-      }
-    ],
-    "linebreak-style": 0,
-    "no-console": "off",
-    "consistent-return": "off"
+    "linebreak-style": 0
   }
 }
