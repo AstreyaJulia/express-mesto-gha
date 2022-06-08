@@ -68,7 +68,7 @@ const setCardLike = (req, res) => {
         responseHelper(null, err, res);
       })
       .then((card) => { if (card) { responseHelper({ data: card }, null, res); } })
-      .catch(() => responseHelper(null, { statusCode: 500 }, res));
+      .catch((err) => responseHelper(null, err, res));
   } else {
     responseHelper(null, { statusCode: 400 }, res);
   }
@@ -91,7 +91,7 @@ const deleteCardLike = (req, res) => {
         responseHelper(null, err, res);
       })
       .then((card) => { if (card) { responseHelper({ data: card }, null, res); } })
-      .catch(() => responseHelper(null, { statusCode: 500 }, res));
+      .catch((err) => responseHelper(null, err, res));
   } else {
     responseHelper(null, { statusCode: 400 }, res);
   }

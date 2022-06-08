@@ -28,7 +28,7 @@ app.use(cardsRoute);
 
 /** Любые маршруты, не подходящие под имеющиеся роуты, вызовут статус 404 */
 app.all('*', (req, res) => {
-  responseHelper(null, { status: 404 }, res);
+  responseHelper(null, { statusCode: 404 }, res);
 });
 
 app.listen(PORT);
