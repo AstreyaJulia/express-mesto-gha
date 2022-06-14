@@ -23,6 +23,7 @@ const responseHelper = (dataObject, error, response) => {
       errorStatus = 400;
     }
 
+    // Не найден запрашиваемый ресурс
     if (error.name === 'DocumentNotFoundError') {
       errorStatus = 404;
     }
