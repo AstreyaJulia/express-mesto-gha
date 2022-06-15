@@ -1,4 +1,3 @@
-const mongoose = require('mongoose');
 const User = require('../models/user');
 const { responseHelper } = require('../utils/responseHelper');
 
@@ -8,7 +7,7 @@ const { responseHelper } = require('../utils/responseHelper');
  */
 const getUsers = (req, res) => User.find({})
   // статус 200, отправляем пользователей
-  .then((users) => responseHelper({ data: users }, null, res))
+  .then((users) => responseHelper({ data: users }, { statusCode: 200 }, res))
   // ошибка сервера, статус 500
   .catch(() => responseHelper(null, { statusCode: 500 }, res));
 
@@ -17,18 +16,13 @@ const getUsers = (req, res) => User.find({})
  * @param res - ответ
  */
 const getUserInfo = (req, res) => {
-  const { userId } = req.params;
   const { _id } = req.user;
 
-  if (mongoose.Types.ObjectId.isValid(userId)) {
-    User.findById(_id)
-      .then((user) => responseHelper({ data: user }, null, res))
-      .catch((err) => {
-        responseHelper(null, err, res);
-      });
-  } else {
-    responseHelper(null, { statusCode: 400 }, res);
-  }
+  User.findById(_id)
+    .then((user) => responseHelper({ data: user }, { statusCode: 200 }, res))
+    .catch((err) => {
+      responseHelper(null, err, res);
+    });
 };
 
 /** Получить пользователя по ID
@@ -39,10 +33,8 @@ const getUserById = (req, res) => {
   const { userId } = req.params;
 
   User.findById(userId)
-    .orFail((err) => {
-      responseHelper(null, err, res);
-    })
-    .then((user) => { if (user) { responseHelper({ data: user }, null, res); } })
+    .orFail()
+    .then((user) => { if (user) { responseHelper({ data: user }, { statusCode: 200 }, res); } })
     .catch((err) => responseHelper(null, err, res));
 };
 
@@ -54,7 +46,7 @@ const createUser = (req, res) => {
   const { name, about, avatar } = req.body;
 
   User.create({ name, about, avatar })
-    .then((user) => responseHelper({ data: user }, null, res))
+    .then((user) => responseHelper({ data: user }, { statusCode: 201 }, res))
     .catch((err) => responseHelper(null, err, res));
 };
 
@@ -69,10 +61,8 @@ const updateProfile = (req, res) => {
   const { _id } = req.user;
 
   User.findByIdAndUpdate(_id, { name, about }, { new: true, runValidators: true })
-    .orFail((err) => {
-      responseHelper(null, err, res);
-    })
-    .then((user) => { if (user) { responseHelper({ data: user }, null, res); } })
+    .orFail()
+    .then((user) => { if (user) { responseHelper({ data: user }, { statusCode: 200 }, res); } })
     .catch((err) => responseHelper(null, err, res));
 };
 
@@ -87,10 +77,8 @@ const updateAvatar = (req, res) => {
   const { _id } = req.user;
 
   User.findByIdAndUpdate(_id, { avatar }, { new: true, runValidators: true })
-    .orFail((err) => {
-      responseHelper(null, err, res);
-    })
-    .then((user) => { if (user) { responseHelper({ data: user }, null, res); } })
+    .orFail()
+    .then((user) => { if (user) { responseHelper({ data: user }, { statusCode: 200 }, res); } })
     .catch((err) => responseHelper(null, err, res));
 };
 

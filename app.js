@@ -23,11 +23,11 @@ app.use((req, res, next) => {
 });
 
 /** Роутинг */
-app.use(usersRoute);
-app.use(cardsRoute);
+app.use('/users', usersRoute);
+app.use('/cards', cardsRoute);
 
 /** Любые маршруты, не подходящие под имеющиеся роуты, вызовут статус 404 */
-app.all('*', (req, res) => {
+app.use((req, res) => {
   responseHelper(null, { statusCode: 404 }, res);
 });
 

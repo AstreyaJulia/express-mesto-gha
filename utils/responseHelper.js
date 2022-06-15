@@ -1,44 +1,40 @@
 /** Обработчик ответа
  * @param dataObject
- * @param error - ошибка от сервера, либо {status: номер статуса}, либо null, если нет ошибки
+ * @param status - ошибка от сервера, либо {status: номер статуса}, либо null, если нет ошибки
  * @param response - ответ
  */
-const responseHelper = (dataObject, error, response) => {
-  /** Объект для ошибок
+const responseHelper = (dataObject, status, response) => {
+  /** Объект для статусов HTTP
    * @type Object
    */
-  const ERRORS = {
+  const STATUS = {
+    200: 'Выполнено без ошибок',
+    201: 'Ресурс создан',
     400: 'Переданы некорректные данные',
     404: 'Запрашиваемый ресурс не найден',
     500: 'Ошибка сервера',
   };
 
-  // Если получили ошибку
-  if (error) {
-    // Ошибка на тот случай, если ни одно условие не подойдет
-    let errorStatus = 500;
+  /** Объект для ошибок Mongoose и их перевода в HTTP-статусы
+   * @type Object
+   */
+  const MONGOOSE_ERRORS = {
+    ValidationError: 400,
+    CastError: 400,
+    DocumentNotFoundError: 404,
+  };
 
-    // Ошибки валидации: не заполнено, не тот тип, и т.д.
-    if (error.name === 'ValidationError' || error.name === 'CastError') {
-      errorStatus = 400;
-    }
-
-    // Не найден запрашиваемый ресурс
-    if (error.name === 'DocumentNotFoundError') {
-      errorStatus = 404;
-    }
-
-    // Ошибки, передаваемые статусом
-    if (error.statusCode) {
-      errorStatus = error.statusCode;
-    }
-
-    // Отправляем ошибку
-    response.status(errorStatus).send({ message: ERRORS[errorStatus] });
-  } else if (dataObject && !error) {
+  // Без ошибок. Статусы от 200 до 299
+  if (dataObject && !status.name && (status.statusCode >= 200 || status.statusCode < 300)) {
     const { ...data } = dataObject;
-    // Ошибок нет, отправляем данные
-    response.status(200).send({ ...data });
+    response.status(status.statusCode).send({ ...data, message: STATUS[status.statusCode] });
+  } else if (status.statusCode >= 400 || status.name) {
+    // Ошибки Mongoose (status['name']) и статусы >= 400
+    // Конвертирование ошибок mongoose
+    if (status.name) {
+      status.statusCode = MONGOOSE_ERRORS[status.name];
+    }
+    response.status(status.statusCode).send({ message: STATUS[status.statusCode] });
   }
 };
 

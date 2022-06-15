@@ -9,11 +9,11 @@ const {
   getUserInfo,
 } = require('../controllers/user');
 
-router.get('/users', getUsers);
-router.get('/users/:userId', getUserById);
-router.get('/users/me', getUserInfo);
-router.post('/users', createUser);
-router.patch('/users/me', updateProfile);
-router.patch('/users/me/avatar', updateAvatar);
+router.get('/', getUsers);
+router.get('/:userId', getUserById);
+router.get('/me', getUserInfo);
+router.post('/', createUser);
+router.patch('/me', updateProfile);
+router.patch('/me/avatar', updateAvatar);
 
 module.exports = router;
