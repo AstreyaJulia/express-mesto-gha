@@ -27,7 +27,7 @@ const responseHelper = (dataObject, status, response) => {
   // Без ошибок. Статусы от 200 до 299
   if (dataObject && !status.name && (status.statusCode >= 200 || status.statusCode < 300)) {
     const { ...data } = dataObject;
-    response.status(status.statusCode).send({ ...data, message: STATUS[status.statusCode] });
+    response.status(status.statusCode).send({ ...data });
   } else if (status.statusCode >= 400 || status.name) {
     // Ошибки Mongoose (status['name']) и статусы >= 400
     // Конвертирование ошибок mongoose
