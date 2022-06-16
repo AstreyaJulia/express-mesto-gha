@@ -7,7 +7,7 @@ const app = express();
 
 const usersRoute = require('./routes/users');
 const cardsRoute = require('./routes/cards');
-const { responseHelper } = require('./utils/errorHandler');
+const { errorHandler } = require('./utils/errorHandler');
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -28,7 +28,7 @@ app.use('/cards', cardsRoute);
 
 /** Любые маршруты, не подходящие под имеющиеся роуты, вызовут статус 404 */
 app.use((req, res) => {
-  responseHelper(null, { statusCode: 404 }, res);
+  errorHandler({ statusCode: 404 }, res);
 });
 
 app.listen(PORT);
