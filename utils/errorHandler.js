@@ -6,11 +6,8 @@ const { MONGOOSE_ERRORS, STATUS } = require('./constants');
  * @param response - ответ
  */
 const errorHandler = (error, response) => {
-  // Конвертирование ошибок mongoose
-  if (error.name) {
-    error.statusCode = MONGOOSE_ERRORS[error.name] || 500;
-  }
-  response.status(error.statusCode || 500).send({ message: STATUS[error.statusCode || 500] });
+  const statusCode = error.statusCode || MONGOOSE_ERRORS[error.name] || 500;
+  response.status(statusCode).send({ message: STATUS[statusCode] });
 };
 
 module.exports = {

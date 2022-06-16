@@ -6,10 +6,8 @@ const { errorHandler } = require('../utils/errorHandler');
  * @param res - ответ
  */
 const getUsers = (req, res) => User.find({})
-  // статус 200, отправляем пользователей
-  .then((users) => res.status(200).send({ data: users }))
-  // ошибка сервера, статус 500
-  .catch(() => errorHandler({ statusCode: 500 }, res));
+  .then((users) => res.send({ data: users }))
+  .catch((error) => errorHandler(error, res));
 
 /** Получить информацию о пользователе
  * @param req - запрос, /users/me, метод GET
@@ -19,10 +17,9 @@ const getUserInfo = (req, res) => {
   const { _id } = req.user;
 
   User.findById(_id)
-    .then((user) => res.status(200).send({ data: user }))
-    .catch((error) => {
-      errorHandler(error, res);
-    });
+    .orFail()
+    .then((user) => res.send({ data: user }))
+    .catch((error) => errorHandler(error, res));
 };
 
 /** Получить пользователя по ID
@@ -34,7 +31,7 @@ const getUserById = (req, res) => {
 
   User.findById(userId)
     .orFail()
-    .then((user) => { if (user) { res.status(200).send({ data: user }); } })
+    .then((user) => res.send({ data: user }))
     .catch((error) => errorHandler(error, res));
 };
 
@@ -62,7 +59,7 @@ const updateProfile = (req, res) => {
 
   User.findByIdAndUpdate(_id, { name, about }, { new: true, runValidators: true })
     .orFail()
-    .then((user) => { if (user) { res.status(200).send({ data: user }); } })
+    .then((user) => res.send({ data: user }))
     .catch((error) => errorHandler(error, res));
 };
 
@@ -78,7 +75,7 @@ const updateAvatar = (req, res) => {
 
   User.findByIdAndUpdate(_id, { avatar }, { new: true, runValidators: true })
     .orFail()
-    .then((user) => { if (user) { res.status(200).send({ data: user }); } })
+    .then((user) => res.send({ data: user }))
     .catch((error) => errorHandler(error, res));
 };
 

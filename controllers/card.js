@@ -7,10 +7,8 @@ const { errorHandler } = require('../utils/errorHandler');
  * @returns {*|Promise<any>}
  */
 const getCards = (req, res) => Card.find({})
-  // статус 200, отправляем карточки
-  .then((cards) => res.status(200).send({ data: cards }))
-  // ошибка сервера, статус 500
-  .catch(() => errorHandler({ statusCode: 500 }, res));
+  .then((cards) => res.send({ data: cards }))
+  .catch((error) => errorHandler(error, res));
 
 /** Создает карточку
  * @param req - запрос, /cards,
@@ -25,9 +23,7 @@ const createCard = (req, res) => {
 
   return Card.create({ name, link, owner: _id })
     .then((card) => res.status(201).send({ data: card }))
-    .catch((error) => {
-      errorHandler(error, res);
-    });
+    .catch((error) => errorHandler(error, res));
 };
 
 /** Удаляет карточку
@@ -40,8 +36,8 @@ const deleteCard = (req, res) => {
 
   Card.findByIdAndRemove(cardId)
     .orFail()
-    .then((card) => { if (card) { res.status(200).send({ data: card }); } })
-    .catch((error) => errorHandler(error, res)); // ошибка сервера, статус 500
+    .then((card) => res.send({ data: card }))
+    .catch((error) => errorHandler(error, res));
 };
 
 /** Ставит лайк карточке
@@ -57,7 +53,7 @@ const setCardLike = (req, res) => {
   // добавить _id пользователя в массив лайков, если его там нет
   Card.findByIdAndUpdate(cardId, { $addToSet: { likes: _id } }, { new: true })
     .orFail()
-    .then((card) => { if (card) { res.status(200).send({ data: card }); } })
+    .then((card) => res.send({ data: card }))
     .catch((error) => errorHandler(error, res));
 };
 
@@ -74,7 +70,7 @@ const deleteCardLike = (req, res) => {
   // Удалить ID пользователя из массива лайков
   Card.findByIdAndUpdate(cardId, { $pull: { likes: _id } }, { new: true })
     .orFail()
-    .then((card) => { if (card) { res.status(200).send({ data: card }); } })
+    .then((card) => res.send({ data: card }))
     .catch((error) => errorHandler(error, res));
 };
 
