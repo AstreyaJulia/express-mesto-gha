@@ -7,7 +7,7 @@ const app = express();
 
 const usersRoute = require('./routes/users');
 const cardsRoute = require('./routes/cards');
-const { responseHelper } = require('./utils/responseHelper');
+const { responseHelper } = require('./utils/errorHandler');
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));

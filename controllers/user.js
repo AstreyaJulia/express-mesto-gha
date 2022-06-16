@@ -1,5 +1,5 @@
 const User = require('../models/user');
-const { responseHelper } = require('../utils/responseHelper');
+const { errorHandler } = require('../utils/errorHandler');
 
 /** Получить всех пользователей
  * @param req - запрос, /users, метод GET
@@ -7,9 +7,9 @@ const { responseHelper } = require('../utils/responseHelper');
  */
 const getUsers = (req, res) => User.find({})
   // статус 200, отправляем пользователей
-  .then((users) => responseHelper({ data: users }, { statusCode: 200 }, res))
+  .then((users) => res.status(200).send({ data: users }))
   // ошибка сервера, статус 500
-  .catch(() => responseHelper(null, { statusCode: 500 }, res));
+  .catch(() => errorHandler({ statusCode: 500 }, res));
 
 /** Получить информацию о пользователе
  * @param req - запрос, /users/me, метод GET
@@ -19,9 +19,9 @@ const getUserInfo = (req, res) => {
   const { _id } = req.user;
 
   User.findById(_id)
-    .then((user) => responseHelper({ data: user }, { statusCode: 200 }, res))
-    .catch((err) => {
-      responseHelper(null, err, res);
+    .then((user) => res.status(200).send({ data: user }))
+    .catch((error) => {
+      errorHandler(error, res);
     });
 };
 
@@ -34,8 +34,8 @@ const getUserById = (req, res) => {
 
   User.findById(userId)
     .orFail()
-    .then((user) => { if (user) { responseHelper({ data: user }, { statusCode: 200 }, res); } })
-    .catch((err) => responseHelper(null, err, res));
+    .then((user) => { if (user) { res.status(200).send({ data: user }); } })
+    .catch((error) => errorHandler(error, res));
 };
 
 /** Создать пользователя
@@ -46,8 +46,8 @@ const createUser = (req, res) => {
   const { name, about, avatar } = req.body;
 
   User.create({ name, about, avatar })
-    .then((user) => responseHelper({ data: user }, { statusCode: 201 }, res))
-    .catch((err) => responseHelper(null, err, res));
+    .then((user) => res.status(201).send({ data: user }))
+    .catch((error) => errorHandler(error, res));
 };
 
 /** Изменить информацию о пользователе
@@ -62,8 +62,8 @@ const updateProfile = (req, res) => {
 
   User.findByIdAndUpdate(_id, { name, about }, { new: true, runValidators: true })
     .orFail()
-    .then((user) => { if (user) { responseHelper({ data: user }, { statusCode: 200 }, res); } })
-    .catch((err) => responseHelper(null, err, res));
+    .then((user) => { if (user) { res.status(200).send({ data: user }); } })
+    .catch((error) => errorHandler(error, res));
 };
 
 /** Изменить аватар пользователя
@@ -78,8 +78,8 @@ const updateAvatar = (req, res) => {
 
   User.findByIdAndUpdate(_id, { avatar }, { new: true, runValidators: true })
     .orFail()
-    .then((user) => { if (user) { responseHelper({ data: user }, { statusCode: 200 }, res); } })
-    .catch((err) => responseHelper(null, err, res));
+    .then((user) => { if (user) { res.status(200).send({ data: user }); } })
+    .catch((error) => errorHandler(error, res));
 };
 
 module.exports = {

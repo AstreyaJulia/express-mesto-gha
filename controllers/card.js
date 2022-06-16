@@ -1,5 +1,5 @@
 const Card = require('../models/card');
-const { responseHelper } = require('../utils/responseHelper');
+const { errorHandler } = require('../utils/errorHandler');
 
 /** Получить все карточки
  * @param req - запрос, /cards, метод GET
@@ -8,9 +8,9 @@ const { responseHelper } = require('../utils/responseHelper');
  */
 const getCards = (req, res) => Card.find({})
   // статус 200, отправляем карточки
-  .then((cards) => responseHelper({ data: cards }, { statusCode: 200 }, res))
+  .then((cards) => res.status(200).send({ data: cards }))
   // ошибка сервера, статус 500
-  .catch(() => responseHelper(null, { statusCode: 500 }, res));
+  .catch(() => errorHandler({ statusCode: 500 }, res));
 
 /** Создает карточку
  * @param req - запрос, /cards,
@@ -24,9 +24,9 @@ const createCard = (req, res) => {
   const { _id } = req.user;
 
   return Card.create({ name, link, owner: _id })
-    .then((card) => responseHelper({ data: card }, { statusCode: 201 }, res))
-    .catch((err) => {
-      responseHelper(null, err, res);
+    .then((card) => res.status(201).send({ data: card }))
+    .catch((error) => {
+      errorHandler(error, res);
     });
 };
 
@@ -40,8 +40,8 @@ const deleteCard = (req, res) => {
 
   Card.findByIdAndRemove(cardId)
     .orFail()
-    .then((card) => { if (card) { responseHelper({ data: card }, { statusCode: 200 }, res); } })
-    .catch((err) => responseHelper(null, err, res)); // ошибка сервера, статус 500
+    .then((card) => { if (card) { res.status(200).send({ data: card }); } })
+    .catch((error) => errorHandler(error, res)); // ошибка сервера, статус 500
 };
 
 /** Ставит лайк карточке
@@ -57,8 +57,8 @@ const setCardLike = (req, res) => {
   // добавить _id пользователя в массив лайков, если его там нет
   Card.findByIdAndUpdate(cardId, { $addToSet: { likes: _id } }, { new: true })
     .orFail()
-    .then((card) => { if (card) { responseHelper({ data: card }, { statusCode: 200 }, res); } })
-    .catch((err) => responseHelper(null, err, res));
+    .then((card) => { if (card) { res.status(200).send({ data: card }); } })
+    .catch((error) => errorHandler(error, res));
 };
 
 /** Удаляет лайк у карточки
@@ -74,8 +74,8 @@ const deleteCardLike = (req, res) => {
   // Удалить ID пользователя из массива лайков
   Card.findByIdAndUpdate(cardId, { $pull: { likes: _id } }, { new: true })
     .orFail()
-    .then((card) => { if (card) { responseHelper({ data: card }, { statusCode: 200 }, res); } })
-    .catch((err) => responseHelper(null, err, res));
+    .then((card) => { if (card) { res.status(200).send({ data: card }); } })
+    .catch((error) => errorHandler(error, res));
 };
 
 module.exports = {
