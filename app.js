@@ -1,7 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-const { celebrate, Joi } = require('celebrate');
+const { celebrate, Joi, errors } = require('celebrate');
 const { auth } = require('./middlewares/auth');
 const { login, createUser } = require('./controllers/user');
 
@@ -39,6 +39,13 @@ app.post('/signup', celebrate({
     password: Joi.string().required(),
   }),
 }), createUser);
+
+app.use(errors());
+
+app.use((err, req, res, next) => {
+  errorHandler(err, res);
+  next(err);
+});
 
 /** Любые маршруты, не подходящие под имеющиеся роуты, вызовут статус 404 */
 app.use(auth, (req, res) => {

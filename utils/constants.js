@@ -21,6 +21,7 @@ const MONGOOSE_ERRORS = {
   DocumentNotFoundError: 404,
   IncorrectEmail: 401,
   11000: 409,
+  "Validation failed": 401
 };
 
 /** Secret key для генерации и валидации JWT

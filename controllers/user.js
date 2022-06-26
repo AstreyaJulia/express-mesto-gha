@@ -1,4 +1,5 @@
 const { sign } = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 const User = require('../models/user');
 const { errorHandler } = require('../utils/errorHandler');
 const { SECRET_KEY } = require('../utils/constants');
@@ -42,9 +43,10 @@ const getUserById = (req, res) => {
  * @param res - ответ
  */
 const createUser = (req, res) => {
-  const { name, about, avatar } = req.body;
+  const { name, about, avatar, email, password } = req.body;
 
-  User.create({ name, about, avatar })
+  bcrypt.hash(password, 10)
+    .then((hash) => User.create({ name, about, avatar, email, password: hash }))
     .then((user) => res.status(201).send({ data: user }))
     .catch((error) => errorHandler(error, res));
 };
