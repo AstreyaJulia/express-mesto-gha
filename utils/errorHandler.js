@@ -7,7 +7,8 @@ const { MONGOOSE_ERRORS, STATUS } = require('./constants');
  * @param response - ответ
  */
 const errorHandler = (error, response) => {
-  const statusCode = error.statusCode || MONGOOSE_ERRORS[error.name || error.message || error.code] || 500;
+  const statusCode = error.statusCode
+    || MONGOOSE_ERRORS[error.name || error.message || error.code] || 500;
   response.status(statusCode).send({ message: STATUS[statusCode] });
 };
 

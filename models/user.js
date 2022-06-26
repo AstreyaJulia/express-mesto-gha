@@ -1,9 +1,6 @@
-const mongoose = require('mongoose');
-const {
-  isEmail,
-  isURL
-} = require('validator');
-const bcrypt = require('bcryptjs');
+const { Schema, model } = require('mongoose');
+const { isEmail, isURL } = require('validator');
+const { compare } = require('bcryptjs');
 const { errorHandler } = require('../utils/errorHandler');
 
 /** Схема пользователя
@@ -11,7 +8,8 @@ const { errorHandler } = require('../utils/errorHandler');
  * name - имя пользователя, about - подпись пользователя, avatar - ссылка на аватар
  * email - email пользователя, password - хэш пароля
  */
-const userSchema = new mongoose.Schema({
+const userSchema = new Schema(
+  {
     name: {
       type: String,
       required: false,
@@ -63,7 +61,7 @@ const userSchema = new mongoose.Schema({
             if (!user) {
               errorHandler(401, res);
             }
-            return bcrypt.compare(password, user.password)
+            return compare(password, user.password)
               .then((matched) => {
                 if (!matched) {
                   errorHandler(401, res);
@@ -72,9 +70,9 @@ const userSchema = new mongoose.Schema({
               });
           })
           .catch((error) => errorHandler(error, res));
-      }
-    }
-  }
+      },
+    },
+  },
 );
 
-module.exports = mongoose.model('user', userSchema);
+module.exports = model('user', userSchema);

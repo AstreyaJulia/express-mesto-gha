@@ -7,7 +7,7 @@ const auth = (req, res, next) => {
 
   /** Если заголовок authorization не передан или не начинается с 'Bearer ' */
   if (!authorization || !authorization.startsWith('Bearer ')) {
-    errorHandler({statusCode: 401}, res)
+    errorHandler({ statusCode: 401 }, res);
   }
 
   /** Удаляем 'Bearer ' из заголовка */
@@ -18,7 +18,7 @@ const auth = (req, res, next) => {
   try {
     payload = verify(token, SECRET_KEY);
   } catch (error) {
-    errorHandler(error, res)
+    errorHandler(error, res);
   }
 
   req.user = payload;

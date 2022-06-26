@@ -1,6 +1,6 @@
+const { sign } = require('jsonwebtoken');
 const User = require('../models/user');
 const { errorHandler } = require('../utils/errorHandler');
-const { sign } = require('jsonwebtoken');
 const { SECRET_KEY } = require('../utils/constants');
 
 /** Получить всех пользователей
@@ -83,7 +83,7 @@ const updateAvatar = (req, res) => {
 
 const login = (req, res) => {
   const { email, password } = req.body;
-  User['statics'].findUserByCredentials(email, password, res)
+  User.statics.findUserByCredentials(email, password, res)
     .then((user) => {
       const token = sign({ _id: user._id }, SECRET_KEY, { expiresIn: '7d' });
       res.cookie('jwt', token, {
