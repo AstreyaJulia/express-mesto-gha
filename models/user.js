@@ -1,26 +1,80 @@
 const mongoose = require('mongoose');
+const {
+  isEmail,
+  isURL
+} = require('validator');
+const bcrypt = require('bcryptjs');
+const { errorHandler } = require('../utils/errorHandler');
 
 /** Схема пользователя
- * @type {module:mongoose.Schema<any, Model<any, any, any, any>, {}, {}, any>}
+ * @type {Object}
  * name - имя пользователя, about - подпись пользователя, avatar - ссылка на аватар
+ * email - email пользователя, password - хэш пароля
  */
 const userSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true,
-    minlength: 2,
-    maxlength: 30,
+    name: {
+      type: String,
+      required: false,
+      minlength: 2,
+      maxlength: 30,
+      default: 'Жак-Ив Кусто',
+    },
+    about: {
+      type: String,
+      required: false,
+      minlength: 2,
+      maxlength: 30,
+      default: 'Исследователь',
+    },
+    avatar: {
+      type: String,
+      required: false,
+      validate: {
+        validator(link) {
+          return isURL(link);
+        },
+        message: 'Введён некорректный URL',
+      },
+      default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
+    },
+    email: {
+      validate: {
+        validator(email) {
+          return isEmail(email);
+        },
+        message: '',
+      },
+      type: String,
+      required: true,
+      unique: true,
+    },
+    password: {
+      type: String,
+      required: true,
+      select: false,
+    },
   },
-  about: {
-    type: String,
-    required: true,
-    minlength: 2,
-    maxlength: 30,
-  },
-  avatar: {
-    type: String,
-    required: true,
-  },
-});
+  {
+    statics: {
+      findUserByCredentials(email, password, res) {
+        return this.findOne({ email })
+          .select('+password')
+          .then((user) => {
+            if (!user) {
+              errorHandler(401, res);
+            }
+            return bcrypt.compare(password, user.password)
+              .then((matched) => {
+                if (!matched) {
+                  errorHandler(401, res);
+                }
+                return user;
+              });
+          })
+          .catch((error) => errorHandler(error, res));
+      }
+    }
+  }
+);
 
 module.exports = mongoose.model('user', userSchema);

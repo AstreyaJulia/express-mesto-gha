@@ -1,5 +1,7 @@
 const User = require('../models/user');
 const { errorHandler } = require('../utils/errorHandler');
+const { sign } = require('jsonwebtoken');
+const { SECRET_KEY } = require('../utils/constants');
 
 /** Получить всех пользователей
  * @param req - запрос, /users, метод GET
@@ -79,6 +81,21 @@ const updateAvatar = (req, res) => {
     .catch((error) => errorHandler(error, res));
 };
 
+const login = (req, res) => {
+  const { email, password } = req.body;
+  User['statics'].findUserByCredentials(email, password, res)
+    .then((user) => {
+      const token = sign({ _id: user._id }, SECRET_KEY, { expiresIn: '7d' });
+      res.cookie('jwt', token, {
+        maxAge: 3600000 * 24 * 7,
+        httpOnly: true,
+        sameSite: true,
+      });
+      res.status(201).send({ message: 'Авторизация успешна', token });
+    })
+    .catch((error) => errorHandler(error, res));
+};
+
 module.exports = {
   getUsers,
   getUserById,
@@ -86,4 +103,5 @@ module.exports = {
   createUser,
   updateProfile,
   updateAvatar,
+  login,
 };
