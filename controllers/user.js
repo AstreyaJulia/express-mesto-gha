@@ -159,7 +159,7 @@ const login = (req, res) => {
         httpOnly: true,
         sameSite: true,
       });
-      res.status(201)
+      res.status(200)
         .send({ token });
     })
     .catch(() => res.status(401).send({ message: STATUS.AUTH_FAIL }));
