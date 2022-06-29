@@ -1,13 +1,16 @@
 const { verify } = require('jsonwebtoken');
-const { errorHandler } = require('../utils/errorHandler');
-const { SECRET_KEY } = require('../utils/constants');
+const {
+  SECRET_KEY,
+  STATUS,
+} = require('../utils/constants');
+const AuthError = require('../error/auth-error');
 
 const auth = (req, res, next) => {
   const { authorization } = req.headers;
 
   /** Если заголовок authorization не передан или не начинается с 'Bearer ' */
   if (!authorization || !authorization.startsWith('Bearer ')) {
-    errorHandler({ statusCode: 401 }, res);
+    return next(new AuthError(STATUS.AUTH_REQUIRED));
   }
 
   /** Удаляем 'Bearer ' из заголовка */
@@ -18,11 +21,11 @@ const auth = (req, res, next) => {
   try {
     payload = verify(token, SECRET_KEY);
   } catch (error) {
-    errorHandler(error, res);
+    return next(new AuthError(STATUS.AUTH_REQUIRED));
   }
 
   req.user = payload;
-  next();
+  return next();
 };
 
 module.exports = {

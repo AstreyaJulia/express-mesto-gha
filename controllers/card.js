@@ -1,43 +1,75 @@
 const Card = require('../models/card');
-const { errorHandler } = require('../utils/errorHandler');
+const { STATUS } = require('../utils/constants');
+const BadRequestError = require('../error/bad-request-error');
+const NotFoundError = require('../error/not-found-error');
+const ForbiddenError = require('../error/forbidden-error');
 
 /** Получить все карточки
  * @param req - запрос, /cards, метод GET
  * @param res - ответ
+ * @param next
  * @returns {*|Promise<any>}
  */
-const getCards = (req, res) => Card.find({})
+const getCards = (req, res, next) => Card.find({})
   .then((cards) => res.send({ data: cards }))
-  .catch((error) => errorHandler(error, res));
+  .catch(next);
 
 /** Создает карточку
  * @param req - запрос, /cards,
  * {name - название карточки, link - ссылка на изображение},
  * user._id - ID пользователя, метод POST
  * @param res - ответ
+ * @param next
  * @returns {Promise<*>}
  */
-const createCard = (req, res) => {
-  const { name, link } = req.body;
+const createCard = (req, res, next) => {
+  const {
+    name,
+    link,
+  } = req.body;
   const { _id } = req.user;
 
-  return Card.create({ name, link, owner: _id })
-    .then((card) => res.status(201).send({ data: card }))
-    .catch((error) => errorHandler(error, res));
+  return Card.create({
+    name,
+    link,
+    owner: _id,
+  })
+    .then((card) => res.status(201)
+      .send({ data: card }))
+    .catch((error) => {
+      if (error.name === 'ValidationError') {
+        return next(new BadRequestError(STATUS.CREATE_CARD_VALIDATION));
+      }
+      return next(error);
+    });
 };
 
 /** Удаляет карточку
  * @param req - запрос, /cards/:cardId,
  * params.cardId - ID карточки, метод DELETE
  * @param res - ответ
+ * @param next
  */
-const deleteCard = (req, res) => {
+const deleteCard = (req, res, next) => {
   const { cardId } = req.params;
 
-  Card.findByIdAndRemove(cardId)
-    .orFail()
-    .then((card) => res.send({ data: card }))
-    .catch((error) => errorHandler(error, res));
+  Card.findOne({ _id: cardId }, 'owner')
+    .then((card) => {
+      if (!card) throw new NotFoundError(STATUS.CARD_NOT_FOUND);
+      if (card.get('owner', String) !== req.user._id) {
+        throw new ForbiddenError(STATUS.DEL_CARD_FORBIDDEN);
+      }
+      Card.findOneAndDelete({ _id: cardId })
+        .then(() => {
+          Card.find({}, 'name link owner likes')
+            .populate('owner', 'name about')
+            .populate('likes', 'name about')
+            .then((cards) => res.send({ data: cards }))
+            .catch(next);
+        })
+        .catch(next);
+    })
+    .catch(next);
 };
 
 /** Ставит лайк карточке
@@ -45,16 +77,24 @@ const deleteCard = (req, res) => {
  * params.cardId - ID карточки,
  * user._id - ID пользователя, метод PUT
  * @param res - ответ
+ * @param next
  */
-const setCardLike = (req, res) => {
+const setCardLike = (req, res, next) => {
   const { cardId } = req.params;
   const { _id } = req.user;
 
   // добавить _id пользователя в массив лайков, если его там нет
   Card.findByIdAndUpdate(cardId, { $addToSet: { likes: _id } }, { new: true })
-    .orFail()
-    .then((card) => res.send({ data: card }))
-    .catch((error) => errorHandler(error, res));
+    .then((card) => {
+      if (!card) throw new NotFoundError(STATUS.CARD_NOT_FOUND);
+      res.send({ data: card });
+    })
+    .catch((error) => {
+      if (error.name === 'ValidationError') {
+        return next(new BadRequestError(STATUS.UPDATE_CARD_VALIDATION));
+      }
+      return next(error);
+    });
 };
 
 /** Удаляет лайк у карточки
@@ -62,8 +102,9 @@ const setCardLike = (req, res) => {
  * params.cardId - ID карточки,
  * user._id - ID пользователя, метод DELETE
  * @param res - ответ
+ * @param next
  */
-const deleteCardLike = (req, res) => {
+const deleteCardLike = (req, res, next) => {
   const { cardId } = req.params;
   const { _id } = req.user;
 
@@ -71,9 +112,18 @@ const deleteCardLike = (req, res) => {
   Card.findByIdAndUpdate(cardId, { $pull: { likes: _id } }, { new: true })
     .orFail()
     .then((card) => res.send({ data: card }))
-    .catch((error) => errorHandler(error, res));
+    .catch((error) => {
+      if (error.name === 'ValidationError') {
+        return next(new BadRequestError(STATUS.UPDATE_CARD_VALIDATION));
+      }
+      return next(error);
+    });
 };
 
 module.exports = {
-  getCards, createCard, deleteCard, setCardLike, deleteCardLike,
+  getCards,
+  createCard,
+  deleteCard,
+  setCardLike,
+  deleteCardLike,
 };

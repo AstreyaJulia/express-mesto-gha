@@ -10,7 +10,8 @@ const app = express();
 
 const usersRoute = require('./routes/users');
 const cardsRoute = require('./routes/cards');
-const { errorHandler } = require('./utils/errorHandler');
+const NotFoundError = require('./error/not-found-error');
+const { STATUS } = require('./utils/constants');
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -30,6 +31,7 @@ app.post('/signin', celebrate({
     password: Joi.string().required(),
   }),
 }), login);
+
 app.post('/signup', celebrate({
   body: Joi.object().keys({
     name: Joi.string().min(2).max(30),
@@ -40,16 +42,20 @@ app.post('/signup', celebrate({
   }),
 }), createUser);
 
-app.use(errors());
-
-app.use((err, req, res, next) => {
-  errorHandler(err, res);
-  next(err);
+/** Любые маршруты, не подходящие под имеющиеся роуты, вызовут статус 404 */
+app.use((req, res, next) => {
+  next(new NotFoundError(STATUS.NOT_FOUND));
 });
 
-/** Любые маршруты, не подходящие под имеющиеся роуты, вызовут статус 404 */
-app.use(auth, (req, res) => {
-  errorHandler({ statusCode: 404 }, res);
+/** Обработчик ошибок Celebrate */
+app.use(errors());
+
+/** Обработчик ошибок */
+app.use((err, req, res) => {
+  const { statusCode = 500, message } = err;
+  res.status(statusCode).send({
+    message: statusCode === 500 ? 'На сервере произошла ошибка' : message,
+  });
 });
 
 app.listen(PORT);

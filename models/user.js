@@ -1,7 +1,8 @@
 const { Schema, model } = require('mongoose');
 const { isEmail, isURL } = require('validator');
 const { compare } = require('bcryptjs');
-const { errorHandler } = require('../utils/errorHandler');
+const AuthError = require('../error/auth-error');
+const { STATUS } = require('../utils/constants');
 
 /** Схема пользователя
  * @type {Object}
@@ -52,27 +53,23 @@ const userSchema = new Schema(
       select: false,
     },
   },
-  {
-    statics: {
-      findUserByCredentials(email, password, res) {
-        return this.findOne({ email })
-          .select('+password')
-          .then((user) => {
-            if (!user) {
-              errorHandler(401, res);
-            }
-            return compare(password, user.password)
-              .then((matched) => {
-                if (!matched) {
-                  errorHandler(401, res);
-                }
-                return user;
-              });
-          })
-          .catch((error) => errorHandler(error, res));
-      },
-    },
-  },
 );
+
+userSchema.statics.findUserByCredentials = function findUserByCredentials(email, password) {
+  return this.findOne({ email })
+    .select('+password')
+    .then((user) => {
+      if (!user) {
+        return Promise.reject(new AuthError(STATUS.AUTH_FAIL));
+      }
+      return compare(password, user.password)
+        .then((matched) => {
+          if (!matched) {
+            return Promise.reject(new AuthError(STATUS.AUTH_FAIL));
+          }
+          return user;
+        });
+    });
+};
 
 module.exports = model('user', userSchema);
