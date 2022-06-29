@@ -1,8 +1,5 @@
 const Card = require('../models/card');
 const { STATUS } = require('../utils/constants');
-const BadRequestError = require('../error/bad-request-error');
-const NotFoundError = require('../error/not-found-error');
-const ForbiddenError = require('../error/forbidden-error');
 
 /** Получить все карточки
  * @param req - запрос, /cards, метод GET
@@ -38,7 +35,7 @@ const createCard = (req, res, next) => {
       .send({ data: card }))
     .catch((error) => {
       if (error.name === 'ValidationError') {
-        return next(new BadRequestError(STATUS.CREATE_CARD_VALIDATION));
+        res.status(400).send({ message: STATUS.CREATE_CARD_VALIDATION });
       }
       return next(error);
     });
@@ -55,9 +52,9 @@ const deleteCard = (req, res, next) => {
 
   Card.findOne({ _id: cardId }, 'owner')
     .then((card) => {
-      if (!card) throw new NotFoundError(STATUS.CARD_NOT_FOUND);
+      if (!card) res.status(404).send({ message: STATUS.CARD_NOT_FOUND });
       if (card.get('owner', String) !== req.user._id) {
-        throw new ForbiddenError(STATUS.DEL_CARD_FORBIDDEN);
+        res.status(403).send({ message: STATUS.DEL_CARD_FORBIDDEN });
       }
       Card.findOneAndDelete({ _id: cardId })
         .then(() => {
@@ -86,12 +83,12 @@ const setCardLike = (req, res, next) => {
   // добавить _id пользователя в массив лайков, если его там нет
   Card.findByIdAndUpdate(cardId, { $addToSet: { likes: _id } }, { new: true })
     .then((card) => {
-      if (!card) throw new NotFoundError(STATUS.CARD_NOT_FOUND);
+      if (!card) res.status(404).send({ message: STATUS.CARD_NOT_FOUND });
       res.send({ data: card });
     })
     .catch((error) => {
       if (error.name === 'ValidationError') {
-        return next(new BadRequestError(STATUS.UPDATE_CARD_VALIDATION));
+        res.status(400).send({ message: STATUS.UPDATE_CARD_VALIDATION });
       }
       return next(error);
     });
@@ -114,7 +111,7 @@ const deleteCardLike = (req, res, next) => {
     .then((card) => res.send({ data: card }))
     .catch((error) => {
       if (error.name === 'ValidationError') {
-        return next(new BadRequestError(STATUS.UPDATE_CARD_VALIDATION));
+        res.status(400).send({ message: STATUS.UPDATE_CARD_VALIDATION });
       }
       return next(error);
     });

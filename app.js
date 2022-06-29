@@ -10,7 +10,6 @@ const app = express();
 
 const usersRoute = require('./routes/users');
 const cardsRoute = require('./routes/cards');
-const NotFoundError = require('./error/not-found-error');
 const { STATUS } = require('./utils/constants');
 
 app.use(bodyParser.json());
@@ -43,8 +42,8 @@ app.post('/signup', celebrate({
 }), createUser);
 
 /** Любые маршруты, не подходящие под имеющиеся роуты, вызовут статус 404 */
-app.use((req, res, next) => {
-  next(new NotFoundError(STATUS.NOT_FOUND));
+app.use((req, res) => {
+  res.status(404).send({ message: STATUS.NOT_FOUND });
 });
 
 /** Обработчик ошибок Celebrate */

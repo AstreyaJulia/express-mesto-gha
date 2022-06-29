@@ -3,14 +3,13 @@ const {
   SECRET_KEY,
   STATUS,
 } = require('../utils/constants');
-const AuthError = require('../error/auth-error');
 
 const auth = (req, res, next) => {
   const { authorization } = req.headers;
 
   /** Если заголовок authorization не передан или не начинается с 'Bearer ' */
   if (!authorization || !authorization.startsWith('Bearer ')) {
-    return next(new AuthError(STATUS.AUTH_REQUIRED));
+    res.status(401).send({ message: STATUS.AUTH_REQUIRED });
   }
 
   /** Удаляем 'Bearer ' из заголовка */
@@ -21,7 +20,7 @@ const auth = (req, res, next) => {
   try {
     payload = verify(token, SECRET_KEY);
   } catch (error) {
-    return next(new AuthError(STATUS.AUTH_REQUIRED));
+    res.status(401).send({ message: STATUS.AUTH_REQUIRED });
   }
 
   req.user = payload;

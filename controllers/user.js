@@ -2,11 +2,7 @@ const { sign } = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const User = require('../models/user');
 const { SECRET_KEY } = require('../utils/constants');
-const NotFoundError = require('../error/not-found-error');
 const { STATUS } = require('../utils/constants');
-const EmailExistError = require('../error/email-exist-error');
-const BadRequestError = require('../error/bad-request-error');
-const AuthError = require('../error/auth-error');
 
 /** Получить всех пользователей
  * @param req - запрос, /users, метод GET
@@ -40,7 +36,7 @@ const getUserById = (req, res) => new Promise((resolve, reject) => {
   User.findById(userId)
     .then((user) => {
       if (!user) {
-        reject(new NotFoundError(STATUS.USER_NOT_FOUND));
+        res.status(404).send({ message: STATUS.USER_NOT_FOUND });
       }
       return res.send({ data: user });
     })
@@ -81,10 +77,10 @@ const createUser = (req, res, next) => {
       }))
     .catch((error) => {
       if (error.code === 11000) {
-        return next(new EmailExistError(STATUS.EMAIL_EXIST));
+        res.status(409).send({ message: STATUS.EMAIL_EXIST });
       }
       if (error.name === 'ValidationError') {
-        return next(new BadRequestError(STATUS.CREATE_USER_VALIDATION));
+        res.status(400).send({ message: STATUS.CREATE_USER_VALIDATION });
       }
       return next(error);
     });
@@ -112,11 +108,11 @@ const updateProfile = (req, res, next) => {
     runValidators: true,
   })
     .then((user) => {
-      if (!user) throw new NotFoundError(STATUS.USER_NOT_FOUND);
+      if (!user) res.status(404).send({ message: STATUS.USER_NOT_FOUND });
       return res.send({ data: user });
     })
     .catch((error) => {
-      if (error.name === 'ValidationError') return next(new BadRequestError(STATUS.UPDATE_PROFILE_VALIDATION));
+      if (error.name === 'ValidationError') res.status(400).send({ message: STATUS.UPDATE_PROFILE_VALIDATION });
       return next(error);
     });
 };
@@ -137,11 +133,11 @@ const updateAvatar = (req, res, next) => {
     runValidators: true,
   })
     .then((user) => {
-      if (!user) throw new NotFoundError(STATUS.USER_NOT_FOUND);
+      if (!user) res.status(404).send({ message: STATUS.USER_NOT_FOUND });
       return res.send({ data: user });
     })
     .catch((error) => {
-      if (error.name === 'ValidationError') return next(new BadRequestError(STATUS.UPDATE_AVATAR_VALIDATION));
+      if (error.name === 'ValidationError') res.status(400).send({ message: STATUS.UPDATE_AVATAR_VALIDATION });
       return next(error);
     });
 };
@@ -149,9 +145,8 @@ const updateAvatar = (req, res, next) => {
 /** Вход в систему
  * @param req - запрос
  * @param res
- * @param next
  */
-const login = (req, res, next) => {
+const login = (req, res) => {
   const {
     email,
     password,
@@ -167,7 +162,7 @@ const login = (req, res, next) => {
       res.status(201)
         .send({ token });
     })
-    .catch(() => next(new AuthError(STATUS.AUTH_FAIL)));
+    .catch(() => res.status(401).send({ message: STATUS.AUTH_FAIL }));
 };
 
 module.exports = {
