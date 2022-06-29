@@ -22,7 +22,12 @@ const getUserInfo = (req, res, next) => {
   const { _id } = req.user;
 
   User.findById(_id)
-    .then((user) => res.send({ data: user }))
+    .then((user) => {
+      if (!user) {
+        res.status(404).send({ message: STATUS.USER_NOT_FOUND });
+      }
+      return res.send({ data: user });
+    })
     .catch(next);
 };
 

@@ -1,8 +1,5 @@
-const { verify } = require('jsonwebtoken');
-const {
-  SECRET_KEY,
-  STATUS,
-} = require('../utils/constants');
+const { STATUS } = require('../utils/constants');
+const { checkToken } = require('../utils/jwt');
 
 const auth = (req, res, next) => {
   const { authorization } = req.headers;
@@ -18,7 +15,7 @@ const auth = (req, res, next) => {
 
   /** Верификация токена по секретному ключу */
   try {
-    payload = verify(token, SECRET_KEY);
+    payload = checkToken(token);
   } catch (error) {
     res.status(401).send({ message: STATUS.AUTH_REQUIRED });
   }
