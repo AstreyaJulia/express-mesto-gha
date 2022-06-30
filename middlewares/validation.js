@@ -93,6 +93,12 @@ const createCardValidation = celebrate({
   }),
 });
 
+const userIdValidation = celebrate({
+  params: Joi.object().keys({
+    userId: Joi.string().length(24).hex().required(),
+  }),
+});
+
 module.exports = {
   signinValidation,
   signupValidation,
@@ -101,4 +107,5 @@ module.exports = {
   updateProfileValidation,
   updateAvatarValidation,
   createCardValidation,
+  userIdValidation,
 };

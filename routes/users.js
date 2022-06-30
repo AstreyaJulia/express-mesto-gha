@@ -12,11 +12,12 @@ const {
   createUserValidation,
   updateProfileValidation,
   updateAvatarValidation,
+  userIdValidation,
 } = require('../middlewares/validation');
 
 router.get('/', getUsers);
 router.get('/me', getUserInfo);
-router.get('/:userId', getUserById);
+router.get('/:userId', userIdValidation, getUserById);
 router.post('/', createUserValidation, createUser);
 router.patch('/me', updateProfileValidation, updateProfile);
 router.patch('/me/avatar', updateAvatarValidation, updateAvatar);
