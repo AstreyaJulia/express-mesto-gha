@@ -40,9 +40,7 @@ const getUserInfo = (req, res, next) => {
  * @param next
  */
 const getUserById = (req, res, next) => {
-  const { userId } = req.params;
-
-  User.findById(userId)
+  User.findById(req.params.userId)
     .then((user) => {
       if (!user) {
         return new NotFoundError(STATUS.USER_NOT_FOUND);

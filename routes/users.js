@@ -9,7 +9,6 @@ const {
   getUserInfo,
 } = require('../controllers/user');
 const {
-  idValidation,
   createUserValidation,
   updateProfileValidation,
   updateAvatarValidation,
@@ -17,7 +16,7 @@ const {
 
 router.get('/', getUsers);
 router.get('/me', getUserInfo);
-router.get('/:userId', idValidation, getUserById);
+router.get('/:userId', getUserById);
 router.post('/', createUserValidation, createUser);
 router.patch('/me', updateProfileValidation, updateProfile);
 router.patch('/me/avatar', updateAvatarValidation, updateAvatar);
