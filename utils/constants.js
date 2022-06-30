@@ -16,12 +16,6 @@ const STATUS = {
   AUTH_REQUIRED: 'Токен авторизации не передан или невалиден',
 };
 
-/** Secret key для генерации и валидации JWT
- * @type {string}
- */
-const SECRET_KEY = '1nAzbR2082Htx4p5ddzxZZqlmcXNDgqfmT5PqyTk0H4OQtKfZHyjew2xUlhnD3X';
-
 module.exports = {
   STATUS,
-  SECRET_KEY,
 };

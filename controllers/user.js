@@ -1,7 +1,6 @@
 const { sign } = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const User = require('../models/user');
-const { SECRET_KEY } = require('../utils/constants');
 const { STATUS } = require('../utils/constants');
 
 /** Получить всех пользователей
@@ -158,7 +157,7 @@ const login = (req, res) => {
   } = req.body;
   User.findUserByCredentials(email, password, res)
     .then((user) => {
-      const token = sign({ _id: user._id }, SECRET_KEY, { expiresIn: '7d' });
+      const token = sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
       res.cookie('jwt', token, {
         maxAge: 3600000 * 24 * 7,
         httpOnly: true,
