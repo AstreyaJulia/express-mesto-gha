@@ -2,6 +2,10 @@ const { sign } = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const User = require('../models/user');
 const { STATUS } = require('../utils/constants');
+const AuthError = require('../errors/auth-error');
+const BadRequestError = require('../errors/bad-request-error');
+const NotFoundError = require('../errors/not-found-error');
+const EmailExistError = require('../errors/email-exist-error');
 
 /** Получить всех пользователей
  * @param req - запрос, /users, метод GET
@@ -23,7 +27,7 @@ const getUserInfo = (req, res, next) => {
   User.findById(_id)
     .then((user) => {
       if (!user) {
-        res.status(404).send({ message: STATUS.USER_NOT_FOUND });
+        return new NotFoundError(STATUS.USER_NOT_FOUND);
       }
       return res.send({ data: user });
     })
@@ -41,13 +45,13 @@ const getUserById = (req, res, next) => {
   User.findById(userId)
     .then((user) => {
       if (!user) {
-        res.status(404).send({ message: STATUS.USER_NOT_FOUND });
+        return new NotFoundError(STATUS.USER_NOT_FOUND);
       }
       return res.send({ data: user });
     })
     .catch((error) => {
       if (error.name === 'CastError') {
-        return res.status(400).send({ message: STATUS.USER_NOT_FOUND });
+        return new BadRequestError(STATUS.USER_NOT_FOUND);
       }
       return next(error);
     });
@@ -87,10 +91,10 @@ const createUser = (req, res, next) => {
       }))
     .catch((error) => {
       if (error.code === 11000) {
-        res.status(409).send({ message: STATUS.EMAIL_EXIST });
+        return new EmailExistError(STATUS.EMAIL_EXIST);
       }
       if (error.name === 'ValidationError') {
-        res.status(400).send({ message: STATUS.CREATE_USER_VALIDATION });
+        return new BadRequestError(STATUS.CREATE_USER_VALIDATION);
       }
       return next(error);
     });
@@ -118,11 +122,11 @@ const updateProfile = (req, res, next) => {
     runValidators: true,
   })
     .then((user) => {
-      if (!user) res.status(404).send({ message: STATUS.USER_NOT_FOUND });
+      if (!user) return new NotFoundError(STATUS.USER_NOT_FOUND);
       return res.send({ data: user });
     })
     .catch((error) => {
-      if (error.name === 'ValidationError') res.status(400).send({ message: STATUS.UPDATE_PROFILE_VALIDATION });
+      if (error.name === 'ValidationError') return new BadRequestError(STATUS.UPDATE_PROFILE_VALIDATION);
       return next(error);
     });
 };
@@ -143,11 +147,11 @@ const updateAvatar = (req, res, next) => {
     runValidators: true,
   })
     .then((user) => {
-      if (!user) res.status(404).send({ message: STATUS.USER_NOT_FOUND });
+      if (!user) return new NotFoundError(STATUS.USER_NOT_FOUND);
       return res.send({ data: user });
     })
     .catch((error) => {
-      if (error.name === 'ValidationError') res.status(400).send({ message: STATUS.UPDATE_AVATAR_VALIDATION });
+      if (error.name === 'ValidationError') return new BadRequestError(STATUS.UPDATE_AVATAR_VALIDATION);
       return next(error);
     });
 };
@@ -172,7 +176,7 @@ const login = (req, res) => {
       res.status(200)
         .send({ token });
     })
-    .catch(() => res.status(401).send({ message: STATUS.AUTH_FAIL }));
+    .catch(() => new AuthError(STATUS.AUTH_FAIL));
 };
 
 module.exports = {

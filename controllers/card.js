@@ -1,5 +1,8 @@
 const Card = require('../models/card');
 const { STATUS } = require('../utils/constants');
+const NotFoundError = require('../errors/not-found-error');
+const BadRequestError = require('../errors/bad-request-error');
+const ForbiddenError = require('../errors/forbidden-error');
 
 /** Получить все карточки
  * @param req - запрос, /cards, метод GET
@@ -35,7 +38,7 @@ const createCard = (req, res, next) => {
       .send({ data: card }))
     .catch((error) => {
       if (error.name === 'ValidationError') {
-        res.status(400).send({ message: STATUS.CREATE_CARD_VALIDATION });
+        return new BadRequestError(STATUS.CREATE_CARD_VALIDATION);
       }
       return next(error);
     });
@@ -51,10 +54,11 @@ const deleteCard = (req, res, next) => {
   const { cardId } = req.params;
 
   Card.findOne({ _id: cardId }, 'owner')
+    // eslint-disable-next-line
     .then((card) => {
-      if (!card) res.status(404).send({ message: STATUS.CARD_NOT_FOUND });
+      if (!card) return new NotFoundError(STATUS.CARD_NOT_FOUND);
       if (card.get('owner', String) !== req.user._id) {
-        res.status(403).send({ message: STATUS.DEL_CARD_FORBIDDEN });
+        return new ForbiddenError(STATUS.DEL_CARD_FORBIDDEN);
       }
       Card.findOneAndDelete({ _id: cardId })
         .then(() => {
@@ -83,12 +87,12 @@ const setCardLike = (req, res, next) => {
   // добавить _id пользователя в массив лайков, если его там нет
   Card.findByIdAndUpdate(cardId, { $addToSet: { likes: _id } }, { new: true })
     .then((card) => {
-      if (!card) res.status(404).send({ message: STATUS.CARD_NOT_FOUND });
-      res.send({ data: card });
+      if (!card) return new NotFoundError(STATUS.CARD_NOT_FOUND);
+      return res.send({ data: card });
     })
     .catch((error) => {
       if (error.name === 'ValidationError') {
-        res.status(400).send({ message: STATUS.UPDATE_CARD_VALIDATION });
+        return new BadRequestError(STATUS.UPDATE_CARD_VALIDATION);
       }
       return next(error);
     });
@@ -111,7 +115,7 @@ const deleteCardLike = (req, res, next) => {
     .then((card) => res.send({ data: card }))
     .catch((error) => {
       if (error.name === 'ValidationError') {
-        res.status(400).send({ message: STATUS.UPDATE_CARD_VALIDATION });
+        return new BadRequestError(STATUS.UPDATE_CARD_VALIDATION);
       }
       return next(error);
     });
