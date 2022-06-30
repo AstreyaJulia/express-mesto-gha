@@ -33,8 +33,9 @@ const getUserInfo = (req, res, next) => {
 /** Получить пользователя по ID
  * @param req - /users/:userId, params.userId - ID пользователя, метод GET
  * @param res - ответ
+ * @param next
  */
-const getUserById = (req, res) => new Promise((resolve, reject) => {
+const getUserById = (req, res, next) => {
   const { userId } = req.params;
 
   User.findById(userId)
@@ -44,8 +45,13 @@ const getUserById = (req, res) => new Promise((resolve, reject) => {
       }
       return res.send({ data: user });
     })
-    .catch((error) => reject(error));
-});
+    .catch((error) => {
+      if (error.name === 'CastError') {
+        return res.status(400).send({ message: STATUS.USER_NOT_FOUND });
+      }
+      return next(error);
+    });
+};
 
 /** Создать пользователя
  * @param req - запрос, /users, метод POST
