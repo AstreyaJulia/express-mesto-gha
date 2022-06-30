@@ -91,10 +91,10 @@ const createUser = (req, res, next) => {
       }))
     .catch((error) => {
       if (error.code === 11000) {
-        return new EmailExistError(STATUS.EMAIL_EXIST);
+        return next(new EmailExistError(STATUS.EMAIL_EXIST));
       }
       if (error.name === 'ValidationError') {
-        return new BadRequestError(STATUS.CREATE_USER_VALIDATION);
+        return next(new BadRequestError(STATUS.CREATE_USER_VALIDATION));
       }
       return next(error);
     });
