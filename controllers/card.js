@@ -53,22 +53,30 @@ const createCard = (req, res, next) => {
 const deleteCard = (req, res, next) => {
   const { cardId } = req.params;
 
-  Card.findOne({ _id: cardId }, 'owner')
+  Card.findById(cardId)
     // eslint-disable-next-line
     .then((card) => {
-      if (!card) return new NotFoundError(STATUS.CARD_NOT_FOUND);
-      if (card.get('owner', String) !== req.user._id) {
-        return new ForbiddenError(STATUS.DEL_CARD_FORBIDDEN);
+      if (!card) throw new NotFoundError(STATUS.CARD_NOT_FOUND);
+      if (String(card.owner) === req.user._id) {
+        Card.findByIdAndRemove(req.params.id)
+          .then(() => {
+            res.status(200).send({ message: 'Карточка удалена' });
+          })
+          .catch((err) => {
+            if (err.name === 'CastError') {
+              throw new BadRequestError(STATUS.CARD_ID_INVALID);
+            }
+            throw err;
+          });
+      } else {
+        throw new ForbiddenError(STATUS.DEL_CARD_FORBIDDEN);
       }
-      Card.findOneAndDelete({ _id: cardId })
-        .then(() => {
-          Card.find({}, 'name link owner likes')
-            .populate('owner', 'name about')
-            .populate('likes', 'name about')
-            .then((cards) => res.send({ data: cards }))
-            .catch(next);
-        })
-        .catch(next);
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        throw new BadRequestError(STATUS.CARD_ID_INVALID);
+      }
+      throw err;
     })
     .catch(next);
 };
@@ -87,15 +95,16 @@ const setCardLike = (req, res, next) => {
   // добавить _id пользователя в массив лайков, если его там нет
   Card.findByIdAndUpdate(cardId, { $addToSet: { likes: _id } }, { new: true })
     .then((card) => {
-      if (!card) return new NotFoundError(STATUS.CARD_NOT_FOUND);
+      if (!card) throw new NotFoundError(STATUS.CARD_NOT_FOUND);
       return res.send({ data: card });
     })
     .catch((error) => {
       if (error.name === 'ValidationError') {
-        return new BadRequestError(STATUS.UPDATE_CARD_VALIDATION);
+        throw new BadRequestError(STATUS.UPDATE_CARD_VALIDATION);
       }
-      return next(error);
-    });
+      throw error;
+    })
+    .catch(next);
 };
 
 /** Удаляет лайк у карточки
