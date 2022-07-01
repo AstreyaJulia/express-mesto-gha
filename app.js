@@ -7,7 +7,7 @@ const {
   login,
   createUser,
 } = require('./controllers/user');
-const { STATUS } = require('./utils/constants');
+const { STATUS } = require('./utils/constants/status');
 const errorsHandler = require('./utils/errorHandler');
 const NotFoundError = require('./errors/not-found-error');
 

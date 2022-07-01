@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
-const { STATUS } = require('../utils/constants');
+const { SECRET_KEY } = require('../utils/constants/secret-key');
+const { STATUS } = require('../utils/constants/status');
 
 /** Проверяет наличие токена авторизации и его валидность в заголовках запроса
  * @param req - запрос
@@ -20,7 +21,7 @@ const auth = (req, res, next) => {
 
   /** Верификация токена по секретному ключу */
   try {
-    payload = jwt.verify(token, 'some-secret-key');
+    payload = jwt.verify(token, SECRET_KEY);
   } catch (error) {
     res.status(401).send({ message: STATUS.AUTH_REQUIRED });
   }

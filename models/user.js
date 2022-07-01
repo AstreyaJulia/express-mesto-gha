@@ -1,7 +1,7 @@
 const { Schema, model } = require('mongoose');
 const { isEmail, isURL } = require('validator');
 const { compare } = require('bcryptjs');
-const { STATUS } = require('../utils/constants');
+const { STATUS } = require('../utils/constants/status');
 
 /** Схема пользователя
  * @type {Object}

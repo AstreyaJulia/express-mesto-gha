@@ -3,12 +3,7 @@ const {
   celebrate,
   Joi,
 } = require('celebrate');
-
-/** Рег. выражение для валидации URL-адресов
- * @type {RegExp}
- */
-// eslint-disable-next-line no-useless-escape
-const URL_REG_EXP = /^https?:\/\/(www\.)?[\w\-_~:\/#\[\]@!&',;=]+\.[\w\-_~:\/#\[\]@!&',;=а-я]+#?/i;
+const { URL_REG_EXP } = require('../utils/constants/url-regexp');
 
 /** Валидация полей входа пользователя */
 const signinValidation = celebrate({

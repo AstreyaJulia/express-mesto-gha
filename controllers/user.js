@@ -1,11 +1,12 @@
 const { sign } = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const User = require('../models/user');
-const { STATUS } = require('../utils/constants');
+const { STATUS } = require('../utils/constants/status');
 const AuthError = require('../errors/auth-error');
 const BadRequestError = require('../errors/bad-request-error');
 const NotFoundError = require('../errors/not-found-error');
 const EmailExistError = require('../errors/email-exist-error');
+const { SECRET_KEY } = require('../utils/constants/secret-key');
 
 /** Получить всех пользователей
  * @param req - запрос, /users, метод GET
@@ -166,7 +167,7 @@ const login = (req, res) => {
   } = req.body;
   User.findUserByCredentials(email, password, res)
     .then((user) => {
-      const token = sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
+      const token = sign({ _id: user._id }, SECRET_KEY, { expiresIn: '7d' });
       // cookie
       res.cookie('jwt', token, {
         maxAge: 3600000 * 24 * 7,
