@@ -43,16 +43,17 @@ const getUserById = (req, res, next) => {
   User.findById(req.params.userId)
     .then((user) => {
       if (!user) {
-        return new NotFoundError(STATUS.USER_NOT_FOUND);
+        throw new NotFoundError(STATUS.USER_NOT_FOUND);
       }
       return res.send({ data: user });
     })
     .catch((error) => {
       if (error.name === 'CastError') {
-        return new BadRequestError(STATUS.USER_NOT_FOUND);
+        throw new BadRequestError(STATUS.USER_NOT_FOUND);
       }
-      return next(error);
-    });
+      throw error;
+    })
+    .catch(next);
 };
 
 /** Создать пользователя
