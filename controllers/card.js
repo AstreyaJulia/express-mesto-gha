@@ -120,11 +120,15 @@ const deleteCardLike = (req, res, next) => {
 
   // Удалить ID пользователя из массива лайков
   Card.findByIdAndUpdate(cardId, { $pull: { likes: _id } }, { new: true })
-    .orFail()
-    .then((card) => res.send({ data: card }))
+    .then((card) => {
+      if (!card) {
+        throw new NotFoundError(STATUS.CARD_NOT_FOUND);
+      }
+      res.send({ data: card });
+    })
     .catch((error) => {
       if (error.name === 'ValidationError') {
-        return new BadRequestError(STATUS.UPDATE_CARD_VALIDATION);
+        throw new BadRequestError(STATUS.UPDATE_CARD_VALIDATION);
       }
       return next(error);
     });
