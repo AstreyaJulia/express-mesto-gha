@@ -1,6 +1,11 @@
 const jwt = require('jsonwebtoken');
 const { STATUS } = require('../utils/constants');
 
+/** Проверяет наличие токена авторизации и его валидность в заголовках запроса
+ * @param req - запрос
+ * @param res - ответ
+ * @param next
+ */
 const auth = (req, res, next) => {
   const { authorization } = req.headers;
 

@@ -59,12 +59,14 @@ userSchema.statics.findUserByCredentials = function findUserByCredentials(email,
     .select('+password')
     .then((user) => {
       if (!user) {
-        res.status(401).send({ message: STATUS.AUTH_FAIL });
+        res.status(401)
+          .send({ message: STATUS.AUTH_FAIL });
       }
       return compare(password, user.password)
         .then((matched) => {
           if (!matched) {
-            res.status(401).send({ message: STATUS.AUTH_FAIL });
+            res.status(401)
+              .send({ message: STATUS.AUTH_FAIL });
           }
           return user;
         });

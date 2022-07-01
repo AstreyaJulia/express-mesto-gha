@@ -34,7 +34,6 @@ app.use('/cards', auth, cardsRoute);
 
 /** Public */
 app.post('/signin', signinValidation, login);
-
 app.post('/signup', signupValidation, createUser);
 
 /** Любые маршруты, не подходящие под имеющиеся роуты, вызовут статус 404 */
@@ -48,4 +47,5 @@ app.use(errors());
 /** Обработчик ошибок */
 app.use(errorsHandler);
 
+/** Прослушиватель запросов */
 app.listen(PORT);

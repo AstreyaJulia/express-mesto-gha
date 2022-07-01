@@ -1,3 +1,9 @@
+/** Обработчик ошибок
+ * @param err - ошибка
+ * @param req - запрос
+ * @param res - ответ
+ * @param next
+ */
 const errorsHandler = (err, req, res, next) => {
   const {
     statusCode = 500,

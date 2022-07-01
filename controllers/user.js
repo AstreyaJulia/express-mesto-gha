@@ -157,7 +157,7 @@ const updateAvatar = (req, res, next) => {
 
 /** Вход в систему
  * @param req - запрос
- * @param res
+ * @param res - ответ
  */
 const login = (req, res) => {
   const {
@@ -167,6 +167,7 @@ const login = (req, res) => {
   User.findUserByCredentials(email, password, res)
     .then((user) => {
       const token = sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
+      // cookie
       res.cookie('jwt', token, {
         maxAge: 3600000 * 24 * 7,
         httpOnly: true,

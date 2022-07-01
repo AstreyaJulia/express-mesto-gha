@@ -1,3 +1,4 @@
+/** Ресурс не найден. Статус 404 */
 class NotFoundError extends Error {
   constructor(message) {
     super(message);

@@ -1,11 +1,16 @@
+/** Celebrate-валидатор */
 const {
   celebrate,
   Joi,
 } = require('celebrate');
 
+/** Рег. выражение для валидации URL-адресов
+ * @type {RegExp}
+ */
 // eslint-disable-next-line no-useless-escape
 const URL_REG_EXP = /^https?:\/\/(www\.)?[\w\-_~:\/#\[\]@!&',;=]+\.[\w\-_~:\/#\[\]@!&',;=а-я]+#?/i;
 
+/** Валидация полей входа пользователя */
 const signinValidation = celebrate({
   body: Joi.object()
     .keys({
@@ -18,6 +23,7 @@ const signinValidation = celebrate({
     }),
 });
 
+/** Валидация полей регистрации пользователя */
 const signupValidation = celebrate({
   body: Joi.object()
     .keys({
@@ -38,6 +44,7 @@ const signupValidation = celebrate({
     }),
 });
 
+/** Валидация дефолтного бд-поля _id */
 const idValidation = celebrate({
   params: Joi.object()
     .keys({
@@ -47,6 +54,7 @@ const idValidation = celebrate({
     }),
 });
 
+/** Валидация cardId для операций с карточками */
 const idCardValidation = celebrate({
   params: Joi.object()
     .keys({
@@ -56,25 +64,18 @@ const idCardValidation = celebrate({
     }),
 });
 
-const createUserValidation = celebrate({
-  body: Joi.object()
+/** Валидация userId для операций с данными пользователя */
+const userIdValidation = celebrate({
+  params: Joi.object()
     .keys({
-      name: Joi.string()
-        .min(2)
-        .max(30),
-      about: Joi.string()
-        .min(2)
-        .max(30),
-      avatar: Joi.string()
-        .pattern(URL_REG_EXP),
-      email: Joi.string()
-        .required()
-        .email(),
-      password: Joi.string()
+      userId: Joi.string()
+        .length(24)
+        .hex()
         .required(),
     }),
 });
 
+/** Валидация полей обновления профиля пользователя */
 const updateProfileValidation = celebrate({
   body: Joi.object()
     .keys({
@@ -89,30 +90,34 @@ const updateProfileValidation = celebrate({
     }),
 });
 
+/** Валидация полей обновления аватара пользователя */
 const updateAvatarValidation = celebrate({
-  body: Joi.object().keys({
-    avatar: Joi.string().required().pattern(URL_REG_EXP),
-  }),
+  body: Joi.object()
+    .keys({
+      avatar: Joi.string()
+        .required()
+        .pattern(URL_REG_EXP),
+    }),
 });
 
+/** Валидация полей создания карточки */
 const createCardValidation = celebrate({
-  body: Joi.object().keys({
-    name: Joi.string().required().min(2).max(30),
-    link: Joi.string().required().pattern(URL_REG_EXP),
-  }),
-});
-
-const userIdValidation = celebrate({
-  params: Joi.object().keys({
-    userId: Joi.string().length(24).hex().required(),
-  }),
+  body: Joi.object()
+    .keys({
+      name: Joi.string()
+        .required()
+        .min(2)
+        .max(30),
+      link: Joi.string()
+        .required()
+        .pattern(URL_REG_EXP),
+    }),
 });
 
 module.exports = {
   signinValidation,
   signupValidation,
   idValidation,
-  createUserValidation,
   updateProfileValidation,
   updateAvatarValidation,
   createCardValidation,

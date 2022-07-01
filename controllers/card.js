@@ -60,7 +60,8 @@ const deleteCard = (req, res, next) => {
       if (String(card.owner) === req.user._id) {
         Card.findByIdAndRemove(cardId)
           .then(() => {
-            res.status(200).send({ message: 'Карточка удалена' });
+            res.status(200)
+              .send({ message: 'Карточка удалена' });
           })
           .catch((err) => {
             if (err.name === 'CastError') {
