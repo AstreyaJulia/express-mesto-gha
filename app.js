@@ -13,6 +13,11 @@ const { STATUS } = require('./utils/constants/status');
 const errorsHandler = require('./utils/errorHandler');
 const NotFoundError = require('./errors/not-found-error');
 
+/** Чтение env-переменных из .env-файла */
+require('dotenv').config();
+
+const { BD_CONNECT_URL } = process.env; // URL для коннекта к БД
+
 const { PORT = 3000 } = process.env; // порт, на котором будет прослушиватель сервера
 const app = express();
 
@@ -34,7 +39,7 @@ app.use(helmet());
  */
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 минут
-  max: 100, // Ограничивать на 100 запросов от одного IP на window` (пред. значение)
+  max: 100, // Ограничивать на 100 запросов от одного IP на `window` (пред. значение)
   standardHeaders: true, // Возвращаем информацию о лимите в заголовки `RateLimit-*`
   legacyHeaders: false, // Блокируем заголовки `X-RateLimit-*`
 });
@@ -43,7 +48,7 @@ const limiter = rateLimit({
 app.use(limiter);
 
 /** Коннект к MongoDB */
-mongoose.connect('mongodb://localhost:27017/mestodb');
+mongoose.connect(BD_CONNECT_URL);
 
 /** Роутинг */
 /** Private */

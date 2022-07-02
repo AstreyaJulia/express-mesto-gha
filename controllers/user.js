@@ -6,7 +6,8 @@ const AuthError = require('../errors/auth-error');
 const BadRequestError = require('../errors/bad-request-error');
 const NotFoundError = require('../errors/not-found-error');
 const EmailExistError = require('../errors/email-exist-error');
-const { SECRET_KEY } = require('../utils/constants/secret-key');
+
+const { JWT_SECRET_KEY } = process.env;
 
 /** Получить всех пользователей
  * @param req - запрос, /users, метод GET
@@ -167,7 +168,7 @@ const login = (req, res) => {
   } = req.body;
   User.findUserByCredentials(email, password, res)
     .then((user) => {
-      const token = sign({ _id: user._id }, SECRET_KEY, { expiresIn: '7d' });
+      const token = sign({ _id: user._id }, JWT_SECRET_KEY, { expiresIn: '7d' });
       // cookie
       res.cookie('jwt', token, {
         maxAge: 3600000 * 24 * 7,
