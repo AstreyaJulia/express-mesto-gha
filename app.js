@@ -2,6 +2,8 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const { errors } = require('celebrate');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 const { auth } = require('./middlewares/auth');
 const {
   login,
@@ -23,6 +25,22 @@ const {
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
+/** HTTP-заголовки */
+app.use(helmet());
+
+/** Настройки ограничителя запросов
+ * @type {Object}
+ */
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 минут
+  max: 100, // Ограничивать на 100 запросов от одного IP на window` (пред. значение)
+  standardHeaders: true, // Возвращаем информацию о лимите в заголовки `RateLimit-*`
+  legacyHeaders: false, // Блокируем заголовки `X-RateLimit-*`
+});
+
+/** Органичитель кол-ва запросов. Защита от DDoS */
+app.use(limiter);
 
 /** Коннект к MongoDB */
 mongoose.connect('mongodb://localhost:27017/mestodb');
