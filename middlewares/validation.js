@@ -44,7 +44,7 @@ const idValidation = celebrate({
   params: Joi.object()
     .keys({
       _id: Joi.string()
-        .alphanum()
+        .hex()
         .length(24),
     }),
 });
@@ -54,7 +54,7 @@ const idCardValidation = celebrate({
   params: Joi.object()
     .keys({
       cardId: Joi.string()
-        .alphanum()
+        .hex()
         .length(24),
     }),
 });

@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const { SECRET_KEY } = require('../utils/constants/secret-key');
 const { STATUS } = require('../utils/constants/status');
+const AuthError = require('../errors/auth-error');
 
 /** Проверяет наличие токена авторизации и его валидность в заголовках запроса
  * @param req - запрос
@@ -11,9 +12,9 @@ const auth = (req, res, next) => {
   const { authorization } = req.headers;
 
   /** Если заголовок authorization не передан или не начинается с 'Bearer ' */
-  if (!authorization || !authorization.startsWith('Bearer ')) {
-    res.status(401).send({ message: STATUS.AUTH_REQUIRED });
-  }
+  if (!authorization || !authorization.startsWith('Bearer '))
+    throw new AuthError(STATUS.AUTH_REQUIRED);
+
 
   /** Удаляем 'Bearer ' из заголовка */
   const token = authorization.replace('Bearer ', '');
@@ -23,7 +24,7 @@ const auth = (req, res, next) => {
   try {
     payload = jwt.verify(token, SECRET_KEY);
   } catch (error) {
-    res.status(401).send({ message: STATUS.AUTH_REQUIRED });
+    throw new AuthError(STATUS.AUTH_REQUIRED);
   }
 
   req.user = payload;
