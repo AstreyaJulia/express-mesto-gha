@@ -12,9 +12,7 @@ const auth = (req, res, next) => {
   const { authorization } = req.headers;
 
   /** Если заголовок authorization не передан или не начинается с 'Bearer ' */
-  if (!authorization || !authorization.startsWith('Bearer '))
-    throw new AuthError(STATUS.AUTH_REQUIRED);
-
+  if (!authorization || !authorization.startsWith('Bearer ')) throw new AuthError(STATUS.AUTH_REQUIRED);
 
   /** Удаляем 'Bearer ' из заголовка */
   const token = authorization.replace('Bearer ', '');
