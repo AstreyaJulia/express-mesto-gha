@@ -16,8 +16,6 @@ const NotFoundError = require('./errors/not-found-error');
 /** Чтение env-переменных из .env-файла */
 require('dotenv').config();
 
-const { BD_CONNECT_URL } = process.env; // URL для коннекта к БД
-
 const { PORT = 3000 } = process.env; // порт, на котором будет прослушиватель сервера
 const app = express();
 
@@ -48,7 +46,7 @@ const limiter = rateLimit({
 app.use(limiter);
 
 /** Коннект к MongoDB */
-mongoose.connect(BD_CONNECT_URL);
+mongoose.connect(process.env.BD_CONNECT_URL);
 
 /** Роутинг */
 /** Private */

@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 const { STATUS } = require('../utils/constants/status');
 const AuthError = require('../errors/auth-error');
 
-const { JWT_SECRET_KEY } = process.env;
+require('dotenv').config();
 
 /** Проверяет наличие токена авторизации и его валидность в заголовках запроса
  * @param req - запрос
@@ -21,7 +21,7 @@ const auth = (req, res, next) => {
 
   /** Верификация токена по секретному ключу */
   try {
-    payload = jwt.verify(token, JWT_SECRET_KEY);
+    payload = jwt.verify(token, process.env.JWT_SECRET_KEY);
   } catch (error) {
     throw new AuthError(STATUS.AUTH_REQUIRED);
   }
